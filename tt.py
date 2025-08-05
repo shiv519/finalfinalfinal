@@ -1,4 +1,37 @@
+import streamlit as st
+import pandas as pd
+import sqlite3
+import random
+import io
 
+try:
+    import google.generativeai as genai
+except ImportError:
+    genai = None
+
+DB_FILE = "timetable.db"
+WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+
+def get_conn():
+    return sqlite3.connect(DB_FILE, check_same_thread=False)
+
+def init_db():
+    conn = get_conn()
+    cur = conn.cursor()
+    # tables
+    cur.execute("""CREATE TABLE IF NOT EXISTS teachers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        teacher_name TEXT,
+        subject TEXT,
+        grades TEXT
+    )""")
+    cur.execute("""CREATE TABLE IF NOT EXISTS subjects (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        subject_name TEXT,
+        grade TEXT,
+        periods_per_week INTEGER,
+        sections TEXT DEFAULT 'A'  -- comma-separated sections, default A
+    )""")
     cur.execute("""CREATE TABLE IF NOT EXISTS subject_colors (
         subject_name TEXT PRIMARY KEY,
         color_code TEXT
